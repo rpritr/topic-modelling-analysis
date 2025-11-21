@@ -1,14 +1,17 @@
-import re
+"""
+Class for Data Processing
+    - init # init DataProcess, args: texts
+    - preprocess_text # Basic text preprocessing, return: texts, slovenian_stopwods
+"""
 
 class DataProcess:
     
     def __init__(self, texts):
         self.texts = texts
         
-
     def preprocess_text(self):
-        """Osnovni preprocessing tekstov"""
-        # Slovenian stopwords - osnovni nabor
+        """Basic text preprocessing"""
+        # Slovenian stopwords - basic
         slovenian_stopwords = [
             'in', 'je', 'na', 'za', 'z', 'se', 'v', 'da', 'ki', 'po', 
             'so', 'od', 'pri', 'ni', 'ter', 'kot', 'ali', 'ima', 'bilo',

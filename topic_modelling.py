@@ -1,5 +1,5 @@
 """
-Enostavna skripta za topic modeling iz job oglasov
+Script for topic modelling on text
 """
 
 from src.DataLoader import DataLoader
@@ -10,19 +10,19 @@ def main():
     
     dl = DataLoader(filename='job_test.txt')
     
-    # Naloži podatke
-    print("Nalagam job opise iz job_test.txt...")
+    # Load data
+    print("Loading job descriptions from job_test.txt...")
     job_descriptions = dl.load_job_descriptions('job_test.txt')
     
     if not job_descriptions:
-        print("Nisem našel nobenih job opisov!")
+        print("No job desciptions found!")
         return
     
-    print(f"Najdenih {len(job_descriptions)} job opisov\n")
+    print(f"Found {len(job_descriptions)} job descriptions\n")
     
-    # Izvedi topic modeling
-    n_topics = 5  # Število tem
-    n_top_words = 10  # Število top besed na temo
+    # Exectute topic modelling
+    n_topics = 5  # Number of topics
+    n_top_words = 10  # Number of top words in topic
     
     tm = TopicModel(job_descriptions,
         n_topics=n_topics,
@@ -31,12 +31,12 @@ def main():
     lda_model, vectorizer, doc_term_matrix = tm.perform_topic_modeling()
     
     tv = TopicVisualise(lda_model, vectorizer, n_topics)
-    # Generiraj wordcloud vizualizacijo
+    
+    # Generate wordcloud visualization
     tv.visualize_topics_wordcloud()
     
-    print("\n✓ Topic modeling končan!")
+    print("\n✓ Topic modeling done!")
 
 
 if __name__ == "__main__":
     main()
-

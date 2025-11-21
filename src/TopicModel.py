@@ -1,12 +1,13 @@
-import re
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+"""
+Class for Data Processing
+    - init # init DataProcess, args: texts
+    - preprocess_text # Basic text preprocessing, return: texts, slovenian_stopwods
+"""
+
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 import numpy as np
-import matplotlib.pyplot as plt
-from src.DataLoader import DataLoader
 from src.DataProcess import DataProcess
-from wordcloud import WordCloud
-
 from src.DataProcess import DataProcess
 
 class TopicModel:
@@ -17,18 +18,18 @@ class TopicModel:
         self.n_top_words = n_top_words
         
     def perform_topic_modeling(self):
-        """Izvede LDA topic modeling"""
+        """Execute LDA topic modeling"""
         
         # Preprocessing
         dp = DataProcess(texts=self.texts)
         texts, stopwords = dp.preprocess_text()
         
-        # Ustvari document-term matrix
-        print(f"Analiziram {len(texts)} job oglasov...")
+        # Create document-term matrix
+        print(f"Analysing {len(texts)} job listings...")
         
         vectorizer = CountVectorizer(
-            max_df=0.95,  # Ignoriraj besede ki se pojavljajo v več kot 95% dokumentov
-            min_df=2,      # Ignoriraj besede ki se pojavljajo v manj kot 2 dokumentih
+            max_df=0.95,  # Ignore words that appear in more than 95% of documents
+            min_df=2,     # Ignore words that appear in less than 2 documents
             stop_words=stopwords,
             lowercase=True,
             max_features=1000
@@ -37,7 +38,7 @@ class TopicModel:
         doc_term_matrix = vectorizer.fit_transform(texts)
         
         # LDA model
-        print(f"\nGradem LDA model s {self.n_topics} temami...")
+        print(f"\nBuilding LDA model with {self.n_topics} topics...")
         lda_model = LatentDirichletAllocation(
             n_components=self.n_topics,
             random_state=42,
@@ -47,9 +48,9 @@ class TopicModel:
         
         lda_model.fit(doc_term_matrix)
         
-        # Prikaži teme
+        # Display topics
         print("\n" + "="*80)
-        print(f"TOP {self.n_top_words} BESED ZA VSAKO TEMO")
+        print(f"TOP {self.n_top_words} WORDS FOR EACH TOPICS")
         print("="*80)
         
         feature_names = vectorizer.get_feature_names_out()
@@ -58,22 +59,22 @@ class TopicModel:
             top_words_idx = topic.argsort()[-self.n_top_words:][::-1]
             top_words = [feature_names[i] for i in top_words_idx]
             
-            print(f"\nTEMA {topic_idx + 1}:")
+            print(f"\nTOPIC {topic_idx + 1}:")
             print(f"  {', '.join(top_words)}")
         
         print("\n" + "="*80)
         
-        # Prikaži nekaj primerov job oglasov in njihove dominantne teme
+        # Show some examples of job ads and their dominant themes
         doc_topic_dist = lda_model.transform(doc_term_matrix)
         
-        print("\nPRIMER OGLASOV IN NJIHOVE DOMINANTNE TEME:")
+        print("EXAMPLE WITH JOB LISTINGS AND TOPICS:")
         print("="*80)
         
         for i in range(min(5, len(texts))):
             dominant_topic = np.argmax(doc_topic_dist[i])
             topic_prob = doc_topic_dist[i][dominant_topic]
             
-            print(f"\nOglas {i+1} (Tema {dominant_topic + 1}, verjetnost: {topic_prob:.2f}):")
+            print(f"\nJob {i+1} (Topic {dominant_topic + 1}, probablity: {topic_prob:.2f}):")
             print(f"  {texts[i][:200]}...")
         
         return lda_model, vectorizer, doc_term_matrix

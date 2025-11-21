@@ -10,31 +10,31 @@ class TopicVisualise:
         self.n_topics = n_topics
 
     def visualize_topics_wordcloud(self):
-        """Generira wordcloud vizualizacijo za vsako temo"""
+        """Generate wordcloud vizualization for eac topic"""
         
         print("\n" + "="*80)
-        print("GENERIRANJE WORDCLOUD VIZUALIZACIJ...")
+        print("GENERATING WORDCLOUD...")
         print("="*80)
         
         feature_names = self.vectorizer.get_feature_names_out()
         
-        # Nastavi figuro za vse wordcloud-e
+        # Set topics for wordcloud-e
         fig, axes = plt.subplots(2, 3, figsize=(15, 10))
-        fig.suptitle('Topic Modeling - WordCloud Vizualizacija', fontsize=16, fontweight='bold')
+        fig.suptitle('Topic Modeling - WordCloud ', fontsize=16, fontweight='bold')
         
-        # Flatten axes za lažje iteriranje
+        # Flatten axes for easier iteration
         axes = axes.flatten()
         
         for topic_idx, topic in enumerate(self.lda_model.components_):
             if topic_idx >= self.n_topics:
                 break
                 
-            # Ustvari slovar besed in njihovih uteži
+            # Create dictionary and weights
             word_weights = {}
             for i, weight in enumerate(topic):
                 word_weights[feature_names[i]] = weight
             
-            # Generiraj wordcloud
+            # Generate wordcloud
             wordcloud = WordCloud(
                 width=800, 
                 height=400,
@@ -44,19 +44,19 @@ class TopicVisualise:
                 min_font_size=10
             ).generate_from_frequencies(word_weights)
             
-            # Prikaži wordcloud
+            # Display wordcloud
             axes[topic_idx].imshow(wordcloud, interpolation='bilinear')
             axes[topic_idx].set_title(f'Tema {topic_idx + 1}', fontsize=14, fontweight='bold')
             axes[topic_idx].axis('off')
         
-        # Skrij dodatne subplot-e, če jih je več kot tem
+        # Hide extra subplot-e, if there is more topics
         for idx in range(self.n_topics, len(axes)):
             axes[idx].axis('off')
         
         plt.tight_layout()
         
-        # Shrani sliko
+        # Save wordcloud to file
         output_file = 'topic_wordclouds.png'
         plt.savefig(output_file, dpi=300, bbox_inches='tight')
-        print(f"\n✓ Wordcloud vizualizacija shranjena kot: {output_file}")
+        print(f"\n✓ Wordcloud saved as: {output_file}")
         plt.close()
