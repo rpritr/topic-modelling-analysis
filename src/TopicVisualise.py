@@ -1,62 +1,84 @@
+from abc import ABC, abstractmethod
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 
-class TopicVisualise:
-    
-    def __init__(self, lda_model, vectorizer, n_topics):
-        self.lda_model = lda_model
-        self.vectorizer = vectorizer
+class TopicVisualiseBase(ABC):
+    def __init__(self, n_topics=None, title_prefix="Topic Modeling"):
+        """
+        n_topics    : maksimalno število tem za prikaz (če None -> vse)
+        title_prefix: prefix za naslov figure
+        """
         self.n_topics = n_topics
+        self.title_prefix = title_prefix
 
-    def visualize_topics_wordcloud(self):
-        """Generate wordcloud vizualization for eac topic"""
-        
-        print("\n" + "="*80)
-        print("GENERATING WORDCLOUD...")
-        print("="*80)
-        
-        feature_names = self.vectorizer.get_feature_names_out()
-        
-        # Set topics for wordcloud-e
-        fig, axes = plt.subplots(2, 3, figsize=(15, 10))
-        fig.suptitle('Topic Modeling - WordCloud ', fontsize=16, fontweight='bold')
-        
-        # Flatten axes for easier iteration
-        axes = axes.flatten()
-        
-        for topic_idx, topic in enumerate(self.lda_model.components_):
-            if topic_idx >= self.n_topics:
-                break
-                
-            # Create dictionary and weights
-            word_weights = {}
-            for i, weight in enumerate(topic):
-                word_weights[feature_names[i]] = weight
-            
-            # Generate wordcloud
-            wordcloud = WordCloud(
-                width=800, 
+    @abstractmethod
+    def get_topic_word_frequencies(self):
+        """
+        Vrne:
+            Ordered dict / navaden dict oblike:
+            {
+                topic_label_1: { "word1": weight1, "word2": weight2, ... },
+                topic_label_2: {...},
+                ...
+            }
+        topic_label je lahko int ali str (npr. 0, 1, 2 ali "Topic 0").
+        """
+        pass
+
+    def visualize_topics_wordcloud(self, output_file="topic_wordclouds.png"):
+        """Generira wordcloude za vse teme, na osnovi podatkov iz get_topic_word_frequencies()."""
+        print("\n" + "=" * 80)
+        print(f"GENERATING WORDCLOUDS ({self.__class__.__name__})...")
+        print("=" * 80)
+
+        topic_freqs = self.get_topic_word_frequencies()
+        if not topic_freqs:
+            print("⚠ Ni podatkov o topicih.")
+            return
+
+        # omejimo število tem, če je potrebno
+        topic_items = list(topic_freqs.items())
+        if self.n_topics is not None:
+            topic_items = topic_items[:self.n_topics]
+
+        n = len(topic_items)
+
+        # layout
+        cols = 3
+        rows = (n + cols - 1) // cols
+
+        fig, axes = plt.subplots(rows, cols, figsize=(15, rows * 5))
+        fig.suptitle(self.title_prefix + " - WordClouds", fontsize=16, fontweight="bold")
+
+        # če je samo en row/col, axes ni nujno array
+        if not isinstance(axes, (list, tuple)):
+            try:
+                axes = axes.flatten()
+            except Exception:
+                axes = [axes]
+        else:
+            axes = [ax for sub in axes for ax in (sub if isinstance(sub, (list, tuple)) else [sub])]
+
+        for idx, (topic_label, freqs) in enumerate(topic_items):
+            wc = WordCloud(
+                width=800,
                 height=400,
-                background_color='white',
-                colormap='viridis',
+                background_color="white",
+                colormap="viridis",
                 relative_scaling=0.5,
-                min_font_size=10
-            ).generate_from_frequencies(word_weights)
-            
-            # Display wordcloud
-            axes[topic_idx].imshow(wordcloud, interpolation='bilinear')
-            axes[topic_idx].set_title(f'Tema {topic_idx + 1}', fontsize=14, fontweight='bold')
-            axes[topic_idx].axis('off')
-        
-        # Hide extra subplot-e, if there is more topics
-        for idx in range(self.n_topics, len(axes)):
-            axes[idx].axis('off')
-        
+                min_font_size=10,
+            ).generate_from_frequencies(freqs)
+
+            axes[idx].imshow(wc, interpolation="bilinear")
+            axes[idx].set_title(str(topic_label), fontsize=14, fontweight="bold")
+            axes[idx].axis("off")
+
+        # skrij odvečne osi
+        for i in range(n, len(axes)):
+            axes[i].axis("off")
+
         plt.tight_layout()
-        
-        # Save wordcloud to file
-        output_file = 'topic_wordclouds.png'
-        plt.savefig(output_file, dpi=300, bbox_inches='tight')
+        plt.savefig(output_file, dpi=300, bbox_inches="tight")
         print(f"\n✓ Wordcloud saved as: {output_file}")
         plt.close()

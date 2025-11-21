@@ -9,33 +9,59 @@ from sklearn.decomposition import LatentDirichletAllocation
 import numpy as np
 from src.DataProcess import DataProcess
 from src.DataProcess import DataProcess
+from bertopic import BERTopic
+from sklearn.datasets import fetch_20newsgroups
+from sentence_transformers import SentenceTransformer
+from bertopic import BERTopic
 
 class TopicModel:
     
-    def __init__(self, texts, n_topics=5, n_top_words=10):
+    def __init__(self, texts, n_topics=5, n_top_words=10, stopwords=[]):
         self.texts = texts
         self.n_topics = n_topics
         self.n_top_words = n_top_words
+        self.stopwords = stopwords
         
-    def perform_topic_modeling(self):
+    def perform_topic_modeling_bert(self):
+        """Execute BERTTopic modeling"""
+        
+         # Preprocessing
+        dp = DataProcess(texts=self.texts)
+        self.texts, stopwords = dp.preprocess_text()
+        
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+       
+        topic_model = BERTopic(embedding_model=model, nr_topics=self.n_topics)
+
+        topics, probs = topic_model.fit_transform(self.texts)
+        topic_info = topic_model.get_topic_info()
+        topics_dict = topic_model.get_topics()
+        print(topic_info)
+
+        return {
+            "topic_model": topic_model,
+            "topics": topics,
+            "probs": probs,
+            "topic_info": topic_info,
+            "topics_dict": topics_dict,
+        }
+        
+    def perform_topic_modeling_lda(self):
         """Execute LDA topic modeling"""
         
-        # Preprocessing
-        dp = DataProcess(texts=self.texts)
-        texts, stopwords = dp.preprocess_text()
-        
+
         # Create document-term matrix
-        print(f"Analysing {len(texts)} job listings...")
+        print(f"Analysing {len(self.texts)} job listings...")
         
         vectorizer = CountVectorizer(
             max_df=0.95,  # Ignore words that appear in more than 95% of documents
             min_df=2,     # Ignore words that appear in less than 2 documents
-            stop_words=stopwords,
+            stop_words=self.stopwords,
             lowercase=True,
             max_features=1000
         )
         
-        doc_term_matrix = vectorizer.fit_transform(texts)
+        doc_term_matrix = vectorizer.fit_transform(self.texts)
         
         # LDA model
         print(f"\nBuilding LDA model with {self.n_topics} topics...")
@@ -70,11 +96,11 @@ class TopicModel:
         print("EXAMPLE WITH JOB LISTINGS AND TOPICS:")
         print("="*80)
         
-        for i in range(min(5, len(texts))):
+        for i in range(min(5, len(self.texts))):
             dominant_topic = np.argmax(doc_topic_dist[i])
             topic_prob = doc_topic_dist[i][dominant_topic]
             
             print(f"\nJob {i+1} (Topic {dominant_topic + 1}, probablity: {topic_prob:.2f}):")
-            print(f"  {texts[i][:200]}...")
+            print(f"  {self.texts[i][:200]}...")
         
         return lda_model, vectorizer, doc_term_matrix
