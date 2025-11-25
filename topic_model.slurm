@@ -13,6 +13,8 @@ IMAGE="$HOME/topic-modelling.sif"
 
 cd "$PROJECT_DIR"
 
+INPUT_FILE="$1"
+
 if [ -z "$1" ]; then
     echo "[ERROR] No input file provided!"
     echo "Usage: sbatch topic_model.slurm job_test.txt"
