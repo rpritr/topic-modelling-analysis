@@ -13,11 +13,11 @@ IMAGE="$HOME/topic-modelling.sif"
 cd "$PROJECT_DIR"
 
 echo "[INFO] Starting topic modelling"
-echo "[INFO] Input: lemmatized_jobs.txt"
+echo "[INFO] Input: $1"
 
 apptainer exec --bind "$PROJECT_DIR":"$PROJECT_DIR" \
     "$IMAGE" python topic_modelling.py \
-        --input lemmatized_jobs.txt \
+        --input "$1" \
         --lemmatized
 
 echo "[INFO] Topic modelling finished"
