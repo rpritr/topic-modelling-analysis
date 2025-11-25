@@ -7,17 +7,44 @@ from src.DataLoader import DataLoader
 from src.DataProcess import DataProcess
 from src.TopicModel import TopicModel
 from src.LDATopicVisualise import LDATopicVisualise
-
+import argparse
+import os
 
 def main():
-    dl = DataLoader(filename='job_test.txt')
+    parser = argparse.ArgumentParser(
+        description="Topic Modelling Pipeline"
+    )
+    parser.add_argument(
+        "-i", "--input",
+        type=str,
+        default="job_test.txt",
+        help="Path to input file with job descriptions (default: job_test.txt)"
+    )
     
-    # Load data
-    print("Loading job descriptions from job_test.txt...")
-    job_descriptions = dl.load_job_descriptions('job_test.txt')
+    parser.add_argument(
+        "--lemmatized",
+        action="store_true",
+        help="Treat input file as one lemmatized document per line"
+    )
     
+    args = parser.parse_args()
+    filename = args.input
+
+    if not os.path.isfile(filename):
+        print(f"[ERROR] Input file not found: {filename}")
+        return
+    
+    dl = DataLoader(filename=filename)
+    
+    if args.lemmatized:
+        print(f"Loading lemmatized job descriptions from {filename}...")
+        job_descriptions = dl.load_plain(filename)
+    else:
+        print(f"Loading job descriptions from {filename} (raw format)...")
+        job_descriptions = dl.load_job_descriptions(filename)
+
     if not job_descriptions:
-        print("No job desciptions found!")
+        print("[ERROR] No job descriptions found!")
         return
     
     print(f"Found {len(job_descriptions)} job descriptions\n")
@@ -48,7 +75,7 @@ def LDA(job_descriptions, n_topics, n_top_words):
     
     # Preprocessing
     dp = DataProcess(texts=job_descriptions)
-    texts = dp.lemmatize_texts()
+    #texts = dp.lemmatize_texts()
     texts, stopwords = dp.preprocess_text()
     
 

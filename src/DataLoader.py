@@ -11,7 +11,11 @@ class DataLoader:
     def __init__(self, filename):
         """Init DataLoader from filename"""
         self.filename = filename
-        
+    
+    def load_plain(self, filename):
+        with open(filename, "r", encoding="utf-8") as f:
+            return [line.strip() for line in f if line.strip()]
+    
     def load_job_descriptions(self, filename):
         """Load job desciptions from filename"""
         with open(filename, 'r', encoding='utf-8') as f:
