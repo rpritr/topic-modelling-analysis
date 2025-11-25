@@ -17,7 +17,9 @@ From: continuumio/miniconda3:24.4.0-0
 
 
     # Classla modeli za slovenščino
-    mkdir -p /opt/classla_resources /opt/conda/envs/topic-modelling/bin/python - << 'EOF'
+    mkdir -p /opt/classla_resources
+    
+    /opt/conda/envs/topic-modelling/bin/python - << 'EOF'
 import classla
 classla.download(
     'sl',
