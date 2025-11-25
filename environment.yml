@@ -16,21 +16,21 @@ dependencies:
   - matplotlib
   - wordcloud
 
-  # topic modelling
-  - bertopic
-  - sentence-transformers
+  # topic modelling (conda)
   - umap-learn
   - hdbscan
   - datasets
   - transformers
   - huggingface_hub
 
-  # sl lang / NLP
-  - classla
-  - obeliks
-  - reldi-tokeniser
-
   # other
   - beautifulsoup4
   - requests
   - pyyaml
+
+  - pip:
+      - bertopic
+      - sentence-transformers
+      - classla
+      - obeliks
+      - reldi-tokeniser
