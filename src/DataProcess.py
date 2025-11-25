@@ -18,7 +18,6 @@ class DataProcess:
             resource_dir = os.path.expanduser("~/.classla")
 
         # Check if classla resources exist
-        resources_sl_dir = os.path.join(resource_dir, "sl")
 
         def has_classla_resources(path: str) -> bool:
             if not os.path.isdir(path):
@@ -28,16 +27,28 @@ class DataProcess:
                     return True
             return False
 
-        if not has_classla_resources(resources_sl_dir):
-            print(f"[INFO] Classla models not found in {resource_dir}. Downloading...")
-            os.makedirs(resource_dir, exist_ok=True)
-            classla.download(
-                "sl",
-                processors="tokenize,pos,lemma",
-                dir=resource_dir
-            )
+        if os.environ.get("CLASSLA_RESOURCES_DIR"):
+            if not has_classla_resources(resource_dir):
+                raise RuntimeError(
+                    f"CLASSLA_RESOURCES_DIR={resource_dir}, "
+                    "classla resources not found. "
+                    "Check build (Apptainer %post)."
+                )
+            else:
+                print(f"[INFO] Using prebuilt Classla models in container: {resource_dir}")
         else:
-            print(f"[INFO] Using existing Classla models in: {resource_dir}")
+            # Local env ~/.classla
+            if not has_classla_resources(resource_dir):
+                print(f"[INFO] Classla models not found in {resource_dir}. Downloading...")
+                os.makedirs(resource_dir, exist_ok=True)
+                classla.download(
+                    "sl",
+                    processors="tokenize,pos,lemma",
+                    dir=resource_dir
+                )
+            else:
+                print(f"[INFO] Using existing Classla models in: {resource_dir}")
+
         self.nlp = classla.Pipeline(
             "sl",
             processors="tokenize,pos,lemma",
