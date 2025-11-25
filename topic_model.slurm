@@ -6,11 +6,9 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=8G
 
-module load apptainer
-
 # Paths
 PROJECT_DIR="$HOME/topic-modelling-analysis"
-IMAGE="$HOME/containers/topic-modelling.sif"
+IMAGE="$HOME/topic-modelling.sif"
 
 cd "$PROJECT_DIR"
 
