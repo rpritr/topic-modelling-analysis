@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+authors:
+- family-names: "Pritrznk"
+  given-names: "Robi"
+  orcid: "https://orcid.org/0009-0001-7910-5176"
+
+title: "Topic Modelling analysis"
+version: 0.1.
+date-released: 2025-11-24
+url: "https://github.com/rpritr/topic-modelling-analysis"
