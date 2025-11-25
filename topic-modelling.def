@@ -16,16 +16,18 @@ From: continuumio/miniconda3:24.4.0-0
     conda env create -f /exec/environment.yml
 
 
-    # Classla modeli za slovenščino
+    # Classla models for slovenian
     mkdir -p /opt/classla_resources
     
     /opt/conda/envs/topic-modelling/bin/python - << 'EOF'
 import classla
+print("[BUILD] Downloading classla models into /opt/classla_resources ...")
 classla.download(
     'sl',
     processors='tokenize,pos,lemma',
     dir='/opt/classla_resources'
 )
+print("[BUILD] Done downloading classla models.")
 EOF
 
     # Clean cache
