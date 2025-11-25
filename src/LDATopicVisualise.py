@@ -11,7 +11,7 @@ class LDATopicVisualise(TopicVisualiseBase):
         topic_freqs = {}
 
         for topic_idx, topic in enumerate(self.lda_model.components_):
-            topic_label = f"Tema {topic_idx + 1}"
+            topic_label = f"Topic {topic_idx + 1}"
             freqs = {feature_names[i]: float(weight) for i, weight in enumerate(topic)}
             topic_freqs[topic_label] = freqs
 

@@ -22,8 +22,8 @@ def main():
     
     print(f"Found {len(job_descriptions)} job descriptions\n")
     
-    n_topics = 5  # Number of topics
-    n_top_words = 10  # Number of top words in topic
+    n_topics = 3  # Number of topics
+    n_top_words = 5  # Number of top words in topic
     
     # Exectute Topic Modelling
     LDA(job_descriptions, n_topics, n_top_words)
@@ -34,7 +34,7 @@ def BERTopic(job_descriptions, n_topics, n_top_words):
     # Preprocessing
     dp = DataProcess(texts=job_descriptions)
     texts, stopwords = dp.preprocess_text()
-    
+        
     bert_tm = TopicModel(texts, n_topics, n_top_words)
     result = bert_tm.perform_topic_modeling_bert()
     bert_vis = BertTopicVisualise(
@@ -48,8 +48,10 @@ def LDA(job_descriptions, n_topics, n_top_words):
     
     # Preprocessing
     dp = DataProcess(texts=job_descriptions)
+    texts = dp.lemmatize_texts()
     texts, stopwords = dp.preprocess_text()
-        
+    
+
     # Exectute topic modelling
     tm = TopicModel(texts,
         n_topics=n_topics,

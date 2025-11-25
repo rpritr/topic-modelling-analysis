@@ -18,7 +18,7 @@ class BertTopicVisualise(TopicVisualiseBase):
             if not words:
                 continue
             freqs = {word: float(weight) for word, weight in words}
-            topic_label = f"Topic {topic_id}"
+            topic_label = f"Topic {topic_id + 1}"
             topic_freqs[topic_label] = freqs
 
         return topic_freqs

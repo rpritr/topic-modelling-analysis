@@ -1,0 +1,41 @@
+Bootstrap: docker
+From: continuumio/miniconda3:24.4.0-0
+
+%labels
+    Author Robi Pritrznik
+    Description "Topic modelling environment with conda"
+
+%files
+    ./environment.yml /exec/environment.yml
+
+%post
+    # Update conda
+    conda update -n base -c defaults conda -y
+
+    # Create env from environment.yml
+    conda env create -f /exec/environment.yml
+
+
+    # Classla modeli za slovenščino
+    mkdir -p /opt/classla_resources /opt/conda/envs/topic-modelling/bin/python - << 'EOF'
+import classla
+classla.download(
+    'sl',
+    processors='tokenize,pos,lemma',
+    dir='/opt/classla_resources'
+)
+EOF
+
+    # Clean cache
+    conda clean -afy
+
+%environment
+    # Activate default env
+    export CONDA_DEFAULT_ENV=topic-modelling
+    export PATH=/opt/conda/envs/topic-modelling/bin:$PATH
+    export CLASSLA_RESOURCES_DIR=/opt/classla_resources
+
+%runscript
+    # Default runscript: run topic modelling
+    echo "Running inside topic-modelling Apptainer container"
+    exec python "$@"

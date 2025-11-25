@@ -49,7 +49,6 @@ class TopicModel:
     def perform_topic_modeling_lda(self):
         """Execute LDA topic modeling"""
         
-
         # Create document-term matrix
         print(f"Analysing {len(self.texts)} job listings...")
         
